@@ -120,3 +120,10 @@ CURLcode curl_easy_getinfo(CURL* curl, CURLINFO info, ...)
     FAIL("Option unsupported by mock: " + std::to_string(info));
     return CURLE_UNKNOWN_OPTION;
 }
+
+curl_slist* curl_slist_append(curl_slist * list, const char* newEntry)
+{
+    const char* a = newEntry;
+    (void)a[0];
+    return list;
+}

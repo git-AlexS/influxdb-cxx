@@ -20,40 +20,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include <curl/curl.h>
+#include "UriParser.h"
+#include "InfluxDBException.h"
+#include <string>
 #include <catch2/catch.hpp>
 #include <catch2/trompeloeil.hpp>
 
 
 namespace influxdb::test
 {
-    struct CurlHandleDummy
+    using namespace Catch::Matchers;
+
+    TEST_CASE("Check parser with token", "[ParseHttpUrl]")
     {
-    };
+        std::string url = "https://localhost:8000?db=test --THIS_TOKEN";
+        http::url parsedUrl = http::ParseHttpUrl(url);
 
-    using WriteCallbackFn = size_t (*)(void*, size_t, size_t, void*);
+        CHECK_THAT(parsedUrl.protocol, Equals("https"));
+        CHECK_THAT(parsedUrl.search, Equals("db=test"));
+        CHECK_THAT(parsedUrl.authtoken, Equals("THIS_TOKEN"));
+        CHECK_THAT(parsedUrl.host, Equals("localhost"));
 
+        CHECK(parsedUrl.user.empty());
+    }
 
-    struct CurlMock
+    TEST_CASE("Check parser without token", "[ParseHttpUrl]")
     {
-        MAKE_MOCK1(curl_global_init, CURLcode(long));
-        MAKE_MOCK0(curl_easy_init, CURL*());
-        MAKE_MOCK3(curl_easy_setopt_, CURLcode(CURL*, CURLoption, long));
-        MAKE_MOCK3(curl_easy_setopt_, CURLcode(CURL*, CURLoption, unsigned long));
-        MAKE_MOCK3(curl_easy_setopt_, CURLcode(CURL*, CURLoption, std::string));
-        MAKE_MOCK3(curl_easy_setopt_, CURLcode(CURL*, CURLoption, void*));
-        MAKE_MOCK3(curl_easy_setopt_, CURLcode(CURL*, CURLoption, WriteCallbackFn));
-        MAKE_MOCK3(curl_easy_setopt_, CURLcode(CURL*, CURLoption, curl_slist*));
-        MAKE_MOCK1(curl_easy_cleanup, void(CURL*));
-        MAKE_MOCK0(curl_global_cleanup, void());
-        MAKE_MOCK1(curl_easy_perform, CURLcode(CURL* easy_handle));
-        MAKE_MOCK3(curl_easy_getinfo_, CURLcode(CURL*, CURLINFO, long*));
-        MAKE_MOCK3(curl_easy_escape, char*(CURL*, const char*, int));
-        MAKE_MOCK1(curl_free, void(void*));
-        MAKE_MOCK2(curl_slist_append, curl_slist*(curl_slist *, const char*));
-    };
+        std::string url = "https://localhost:8000?db=test";
+        http::url parsedUrl = http::ParseHttpUrl(url);
 
-    extern CurlMock curlMock;
+        CHECK_THAT(parsedUrl.protocol, Equals("https"));
+        CHECK_THAT(parsedUrl.search, Equals("db=test"));
+        CHECK_THAT(parsedUrl.host, Equals("localhost"));
+
+        CHECK(parsedUrl.user.empty());
+        CHECK(parsedUrl.authtoken.empty());
+    }
+
 }

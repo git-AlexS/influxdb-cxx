@@ -27,7 +27,7 @@
 
 #include "HTTP.h"
 #include "InfluxDBException.h"
-
+#include <sstream>
 
 namespace influxdb::transports
 {
@@ -155,6 +155,15 @@ void HTTP::enableBasicAuth(const std::string &auth)
   curl_easy_setopt(writeHandle, CURLOPT_USERPWD, auth.c_str());
   curl_easy_setopt(readHandle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
   curl_easy_setopt(readHandle, CURLOPT_USERPWD, auth.c_str());
+}
+
+void HTTP::enableTokenAuth(const std::string &auth)
+{
+  struct curl_slist *headerList = NULL;
+  std::stringstream tokenString;
+  tokenString << "Authorization: Token " << auth;
+  headerList = curl_slist_append(headerList, tokenString.str().c_str());
+  curl_easy_setopt(readHandle, CURLOPT_HTTPHEADER, headerList);
 }
 
 void HTTP::send(std::string &&lineprotocol)

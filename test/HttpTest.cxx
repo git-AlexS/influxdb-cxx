@@ -486,6 +486,23 @@ namespace influxdb::test
         REQUIRE_CALL(curlMock, curl_easy_setopt_(handle, CURLOPT_USERPWD, "user0:pass0")).RETURN(CURLE_OK).TIMES(2);
         http.enableBasicAuth("user0:pass0");
     }
+    TEST_CASE("Enabling token auth sets curl options", "[HttpTest]")
+    {
+        ALLOW_CALL(curlMock, curl_global_init(_)).RETURN(CURLE_OK);
+        ALLOW_CALL(curlMock, curl_easy_init()).RETURN(handle);
+        ALLOW_CALL(curlMock, curl_easy_setopt_(_, _, ANY(std::string))).RETURN(CURLE_OK);
+        ALLOW_CALL(curlMock, curl_easy_setopt_(_, _, ANY(long))).RETURN(CURLE_OK);
+        ALLOW_CALL(curlMock, curl_easy_setopt_(_, _, ANY(WriteCallbackFn))).RETURN(CURLE_OK);
+        ALLOW_CALL(curlMock, curl_easy_cleanup(_));
+        ALLOW_CALL(curlMock, curl_global_cleanup());
+
+        HTTP http{"http://localhost:8086?db=example-database-0 --TOKEN"};
+        //struct curl_slist *headerList = NULL;
+        // headerList = curl_slist_append(headerList, "Authorization: Token TOKEN");
+        // REQUIRE_CALL(curlMock, curl_easy_setopt_(_, CURLOPT_HTTPAUTH, ANY(curl_slist *))).RETURN(CURLE_OK).TIMES(1);
+        REQUIRE_CALL(curlMock, curl_easy_setopt_(_, _, ANY(curl_slist *))).RETURN(CURLE_OK).TIMES(1);
+        http.enableTokenAuth("TOKEN");
+    }
 
     TEST_CASE("Database name is returned if valid", "[HttpTest]")
     {

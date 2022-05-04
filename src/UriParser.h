@@ -27,7 +27,7 @@
 
 namespace http {
     struct url {
-        std::string protocol, user, password, host, path, search, url;
+        std::string protocol, user, password, host, path, search, url, authtoken;
         int port;
     };
 
@@ -78,6 +78,7 @@ namespace http {
 
     static inline std::string ExtractPath(std::string &in) { return TailSlice(in, "/", true); }
     static inline std::string ExtractProtocol(std::string &in) { return HeadSlice(in, "://"); }
+    static inline std::string ExtractAuthToken(std::string &in) { return TailSlice(in, " --"); }
     static inline std::string ExtractSearch(std::string &in) { return TailSlice(in, "?"); }
     static inline std::string ExtractPassword(std::string &userpass) { return TailSlice(userpass, ":"); }
     static inline std::string ExtractUserpass(std::string &in) { return HeadSlice(in, "@"); }
@@ -87,6 +88,7 @@ namespace http {
     static inline url ParseHttpUrl(std::string &in) {
         const auto url = in;
         const auto protocol = ExtractProtocol(in);
+        const auto authtoken = ExtractAuthToken(in);
         const auto search = ExtractSearch(in);
         const auto path = ExtractPath(in);
         std::string userpass = ExtractUserpass(in);
@@ -95,7 +97,7 @@ namespace http {
         const auto port = ExtractPort(in);
         const auto host = in;
 
-        return {protocol, user, password, host, path, search, url, port};
+        return {protocol, user, password, host, path, search, url, authtoken, port};
     }
 }
 #endif

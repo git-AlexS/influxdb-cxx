@@ -32,6 +32,7 @@ add_unittest(LineProtocolTest)
 target_link_libraries(LineProtocolTest PRIVATE InfluxDB-Internal)
 
 add_unittest(InfluxDBTest)
+add_unittest(UriParserTest)
 add_unittest(InfluxDBFactoryTest)
 
 add_unittest(HttpTest)
@@ -51,6 +52,7 @@ add_custom_target(unittest PointTest
     COMMAND InfluxDBTest
     COMMAND InfluxDBFactoryTest
     COMMAND HttpTest
+    COMMAND UriParserTest
     COMMAND NoBoostSupportTest
     COMMAND $<$<BOOL:${INFLUXCXX_WITH_BOOST}>:BoostSupportTest>
 
