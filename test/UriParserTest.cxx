@@ -21,10 +21,12 @@
 // SOFTWARE.
 
 #include "UriParser.h"
+#include "HTTP.h"
 #include "InfluxDBException.h"
 #include <string>
 #include <catch2/catch.hpp>
 #include <catch2/trompeloeil.hpp>
+#include <iostream>
 
 
 namespace influxdb::test
@@ -36,6 +38,7 @@ namespace influxdb::test
         std::string url = "https://localhost:8000?db=test --THIS_TOKEN";
         http::url parsedUrl = http::ParseHttpUrl(url);
 
+        CHECK_THAT(parsedUrl.url, Equals("https://localhost:8000?db=test"));
         CHECK_THAT(parsedUrl.protocol, Equals("https"));
         CHECK_THAT(parsedUrl.search, Equals("db=test"));
         CHECK_THAT(parsedUrl.authtoken, Equals("THIS_TOKEN"));
@@ -49,6 +52,7 @@ namespace influxdb::test
         std::string url = "https://localhost:8000?db=test";
         http::url parsedUrl = http::ParseHttpUrl(url);
 
+        CHECK_THAT(parsedUrl.url, Equals("https://localhost:8000?db=test"));
         CHECK_THAT(parsedUrl.protocol, Equals("https"));
         CHECK_THAT(parsedUrl.search, Equals("db=test"));
         CHECK_THAT(parsedUrl.host, Equals("localhost"));
@@ -56,5 +60,12 @@ namespace influxdb::test
         CHECK(parsedUrl.user.empty());
         CHECK(parsedUrl.authtoken.empty());
     }
-
+    TEST_CASE("Send curl request", "[ParseHttpUrl]")
+    {
+        influxdb::transports::HTTP http{"https://localhost:8000?db=test --TOKEN"};
+        http.enableTokenAuth("TOKEN");
+        std::string res;
+        res = http.query("SELECT * FROM \"machinestate\".\"autogen\".\"r55iwater::reader:status\" WHERE time > now() - 60m AND time < now()");
+        std::cout << res << std::endl;
+    }
 }

@@ -32,9 +32,10 @@ add_unittest(LineProtocolTest)
 target_link_libraries(LineProtocolTest PRIVATE InfluxDB-Internal)
 
 add_unittest(InfluxDBTest)
-add_unittest(UriParserTest)
 add_unittest(InfluxDBFactoryTest)
 
+add_unittest(UriParserTest)
+target_link_libraries(UriParserTest PRIVATE InfluxDB-Http CURL::libcurl)
 add_unittest(HttpTest)
 target_link_libraries(HttpTest PRIVATE InfluxDB-Http CurlMock)
 

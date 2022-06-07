@@ -500,7 +500,13 @@ namespace influxdb::test
         //struct curl_slist *headerList = NULL;
         // headerList = curl_slist_append(headerList, "Authorization: Token TOKEN");
         // REQUIRE_CALL(curlMock, curl_easy_setopt_(_, CURLOPT_HTTPAUTH, ANY(curl_slist *))).RETURN(CURLE_OK).TIMES(1);
-        REQUIRE_CALL(curlMock, curl_easy_setopt_(_, _, ANY(curl_slist *))).RETURN(CURLE_OK).TIMES(1);
+        REQUIRE_CALL(curlMock, curl_easy_setopt_(_, CURLOPT_HTTPAUTH, ANY(curl_slist *))).RETURN(CURLE_OK).TIMES(1);
+        http.enableTokenAuth("TOKEN");
+    }
+
+    TEST_CASE("Enabling token auth with curl query", "[HttpTest]")
+    {
+        HTTP http{"http://localhost:8086?db=example-database-0 --TOKEN"};
         http.enableTokenAuth("TOKEN");
     }
 

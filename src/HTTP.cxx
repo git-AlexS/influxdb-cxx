@@ -164,6 +164,7 @@ void HTTP::enableTokenAuth(const std::string &auth)
   tokenString << "Authorization: Token " << auth;
   headerList = curl_slist_append(headerList, tokenString.str().c_str());
   curl_easy_setopt(readHandle, CURLOPT_HTTPHEADER, headerList);
+  curl_easy_setopt(writeHandle, CURLOPT_HTTPHEADER, headerList);
 }
 
 void HTTP::send(std::string &&lineprotocol)
